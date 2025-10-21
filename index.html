@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pico + Responsive Navigation Example</title>
+
+  <!-- Pico CSS (CDN) -->
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+
+  <style>
+    /* Small custom styles for responsive nav toggle */
+
+    /* Hide the native list-style spacing a bit for header */
+    header[role="banner"] nav ul { margin: 0; padding: 0; }
+
+    /* Toggle button - visible only on small screens */
+    .nav-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 0;
+      background: transparent;
+      font: inherit;
+      color: inherit;
+      padding: 0.25rem 0.5rem;
+    }
+
+    /* On small screens, hide the nav list by default and show toggle */
+    @media (max-width: 720px) {
+      header[role="banner"] nav ul {
+        display: none;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+      }
+      .nav-toggle { display: inline-flex; }
+    }
+
+    /* When .nav-open is on body, show the nav list on small screens */
+    body.nav-open header[role="banner"] nav ul {
+      display: flex;
+    }
+
+    /* On larger screens show nav inline and hide the toggle */
+    @media (min-width: 721px) {
+      header[role="banner"] nav ul {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+      .nav-toggle { display: none; }
+    }
+
+    /* Small visual tweak for the hamburger lines */
+    .hamburger {
+      width: 18px;
+      height: 14px;
+      display:inline-block;
+      position:relative;
+    }
+    .hamburger::before,
+    .hamburger::after,
+    .hamburger span {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: currentColor;
+      border-radius: 2px;
+    }
+    .hamburger::before { top: 0; }
+    .hamburger span { top: 6px; }
+    .hamburger::after { bottom: 0; }
+  </style>
+</head>
+<body>
+  <header role="banner" class="container">
+    <div class="grid">
+      <div>
+        <a href="/" class="contrast">MySite</a>
+      </div>
+
+      <div style="justify-self:end;">
+        <!-- Toggle button for small screens -->
+        <button class="nav-toggle" id="navToggle" aria-controls="primaryNav" aria-expanded="false" aria-label="Toggle navigation">
+          <i class="hamburger" aria-hidden="true"><span></span></i>
+          <span class="sr-only">Menu</span>
+        </button>
+
+        <!-- Navigation -->
+        <nav id="primaryNav" aria-label="Primary">
+          <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Docs</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <article class="prose">
+      <h1>Welcome</h1>
+      <p>This page demonstrates using Pico's classless semantic styles together with a tiny responsive navigation toggle for mobile screens. Resize the browser under 720px to see the burger menu appear.</p>
+
+      <section>
+        <h2>Content</h2>
+        <p>Pico provides sensible defaults for typography, forms, tables and common elements. The navigation here is intentionally small and accessible: the button has aria-controls and aria-expanded, and the menu reveals by toggling a class on the document's body.</p>
+      </section>
+    </article>
+  </main>
+
+  <footer class="container muted" role="contentinfo">
+    <p>&copy; 2025 — Pico demo</p>
+  </footer>
+
+  <script>
+    // Small accessible nav toggle script
+    (function () {
+      const toggle = document.getElementById('navToggle');
+      const body = document.body;
+
+      if (!toggle) return;
+
+      toggle.addEventListener('click', function () {
+        const isOpen = body.classList.toggle('nav-open');
+        toggle.setAttribute('aria-expanded', String(isOpen));
+      });
+
+      // Optional: close nav when focus leaves the nav on small screens
+      const nav = document.getElementById('primaryNav');
+      document.addEventListener('click', (e) => {
+        if (!body.classList.contains('nav-open')) return;
+        // close if click outside header
+        if (!headerContainsTarget(e.target)) {
+          body.classList.remove('nav-open');
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      function headerContainsTarget(target) {
+        const header = document.querySelector('header[role="banner"]');
+        return header && header.contains(target);
+      }
+    })();
+  </script>
+</body>
+</html>
