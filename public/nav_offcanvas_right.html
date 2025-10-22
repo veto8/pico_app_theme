@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pico.css Off-canvas Navigation (Right)</title>
+
+  <!-- Pico.css -->
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+
+  <style>
+    :root {
+      --offcanvas-width: min(360px, 82vw);
+      --transition-speed: 280ms;
+    }
+
+    /* Header */
+    header.site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.5rem 1rem;
+      position: relative;
+      z-index: 20;
+    }
+
+    /* Desktop nav */
+    nav.main-nav ul {
+      display: flex;
+      gap: 0.75rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      align-items: center;
+    }
+
+    /* Burger for small screens */
+    .burger {
+      display: none;
+      background: transparent;
+      border: none;
+      font: inherit;
+      cursor: pointer;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    @media (max-width: 720px) {
+      nav.main-nav { display: none; }
+      .burger { display: inline-flex; }
+    }
+
+    /* Off-canvas container (fixed) */
+    .offcanvas {
+      position: fixed;
+      inset: 0;
+      display: none;
+      z-index: 200; /* above everything */
+      pointer-events: none; /* ignore clicks when closed */
+    }
+
+    .offcanvas.open {
+      display: block;
+      pointer-events: auto;
+    }
+
+    /* Backdrop */
+    .offcanvas__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(2px);
+      opacity: 0;
+      transition: opacity var(--transition-speed) ease;
+    }
+
+    .offcanvas.open .offcanvas__backdrop {
+      opacity: 1;
+    }
+
+    /* Canvas (slides from right) */
+    .offcanvas__panel {
+      position: absolute;
+      top: 0;
+      right: 0;               /* align to right */
+      left: auto;
+      height: 100%;
+      width: var(--offcanvas-width);
+      max-width: 100%;
+      background: var(--surface, #fff);
+      box-shadow: -8px 0 28px rgba(0,0,0,0.16);
+      transform: translateX(100%); /* hidden off-canvas to the right */
+      transition: transform var(--transition-speed) cubic-bezier(.2,.9,.25,1);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .offcanvas.open .offcanvas__panel {
+      transform: translateX(0);
+    }
+
+    /* Panel content */
+    .offcanvas__header {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: 1rem;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .offcanvas__nav ul {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      list-style: none;
+      margin: 0;
+      padding: 1rem;
+    }
+
+    .offcanvas__close {
+      margin-left: auto;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font: inherit;
+      padding: .25rem;
+    }
+
+    /* Prevent body scrolling when open */
+    body.offcanvas-open {
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    /* Small visual gap under header for demo */
+    main.container { padding-top: 1rem; }
+  </style>
+</head>
+<body>
+
+<header class="site-header container">
+  <a class="brand" href="#"><strong>MySite</strong></a>
+
+  <nav class="main-nav" role="navigation" aria-label="Primary">
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#docs">Docs</a></li>
+      <li><a class="contrast" href="#signup">Sign up</a></li>
+    </ul>
+  </nav>
+
+  <button class="burger" id="burger" aria-controls="offcanvas" aria-expanded="false" aria-label="Open navigation">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+    </svg>
+    Menu
+  </button>
+</header>
+
+<!-- Off-canvas container (right side) -->
+<div class="offcanvas" id="offcanvas" aria-hidden="true">
+  <div class="offcanvas__backdrop" id="offcanvasBackdrop" tabindex="-1" data-action="close"></div>
+
+  <aside class="offcanvas__panel" id="offcanvasPanel" role="dialog" aria-modal="true" aria-label="Primary navigation">
+    <div class="offcanvas__header">
+      <strong>Navigation</strong>
+      <button class="offcanvas__close" id="offcanvasClose" aria-label="Close navigation">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M6 6l12 12M6 18L18 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="offcanvas__nav" id="offcanvasNav">
+      <ul>
+        <li><a href="#home" data-close>Home</a></li>
+        <li><a href="#features" data-close>Features</a></li>
+        <li><a href="#docs" data-close>Docs</a></li>
+        <li><a href="#pricing" data-close>Pricing</a></li>
+        <li><a href="#about" data-close>About</a></li>
+        <li><a class="contrast" href="#signup" data-close>Sign up</a></li>
+      </ul>
+    </nav>
+  </aside>
+</div>
+
+<main class="container">
+  <h1>Off-canvas (right) menu</h1>
+  <p>This example implements a right-side off-canvas navigation that overlays the page (does not push content). It slides in from the right.</p>
+
+  <section style="height:1200px;">
+    <h2>Page content</h2>
+    <p>Open the menu on small screens to see the panel appear from the right. The panel traps focus and closes on Esc, backdrop click, or link click.</p>
+  </section>
+</main>
+
+<script>
+  // Elements
+  const burger = document.getElementById('burger');
+  const offcanvas = document.getElementById('offcanvas');
+  const panel = document.getElementById('offcanvasPanel');
+  const closeBtn = document.getElementById('offcanvasClose');
+  const backdrop = document.getElementById('offcanvasBackdrop');
+
+  // Open/close helpers
+  function openOffcanvas() {
+    offcanvas.classList.add('open');
+    offcanvas.setAttribute('aria-hidden', 'false');
+    burger.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('offcanvas-open');
+
+    // save previously focused element to restore later
+    offcanvas._lastFocus = document.activeElement;
+    // focus first focusable element in panel
+    (panel.querySelector('a, button, [tabindex]:not([tabindex="-1"])') || panel).focus();
+
+    // set up simple focus trap
+    document.addEventListener('keydown', trapTab);
+  }
+
+  function closeOffcanvas() {
+    offcanvas.classList.remove('open');
+    offcanvas.setAttribute('aria-hidden', 'true');
+    burger.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('offcanvas-open');
+
+    // restore focus
+    if (offcanvas._lastFocus) offcanvas._lastFocus.focus();
+
+    document.removeEventListener('keydown', trapTab);
+  }
+
+  // Toggle
+  burger.addEventListener('click', () => {
+    const expanded = burger.getAttribute('aria-expanded') === 'true';
+    if (expanded) closeOffcanvas(); else openOffcanvas();
+  });
+
+  closeBtn.addEventListener('click', closeOffcanvas);
+  backdrop.addEventListener('click', closeOffcanvas);
+
+  // Close when any nav link with data-close is clicked
+  panel.addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-close]');
+    if (a) closeOffcanvas();
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && offcanvas.classList.contains('open')) closeOffcanvas();
+  });
+
+  // Focus trap implementation (Tab cycling within panel)
+  function trapTab(e) {
+    if (e.key !== 'Tab') return;
+
+    const focusable = panel.querySelectorAll('a, button, input, textarea, select, [tabindex]:not([tabindex="-1"])');
+    const nodes = Array.prototype.slice.call(focusable).filter(n => !n.disabled && n.offsetParent !== null);
+
+    if (nodes.length === 0) {
+      // nothing focusable, prevent tabbing out
+      e.preventDefault();
+      return;
+    }
+
+    const first = nodes[0];
+    const last = nodes[nodes.length - 1];
+    const active = document.activeElement;
+
+    if (e.shiftKey) {
+      // Shift + Tab
+      if (active === first || panel === active) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else {
+      // Tab
+      if (active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
+
+  // Accessibility: keep focus inside when open
+  document.addEventListener('focus', (e) => {
+    if (!offcanvas.classList.contains('open')) return;
+    if (!offcanvas.contains(e.target)) {
+      e.stopPropagation();
+      panel.querySelector('a, button')?.focus();
+    }
+  }, true);
+</script>
+</body>
+</html>
